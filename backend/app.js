@@ -3,10 +3,13 @@ import 'dotenv/config'
 import express from 'express'
 import userRouter from './routes/user.route.js';
 import connectDB from './configs/db.config.js';
+import cors from 'cors'
 const app=express();
 
 // middlewares
+app.use(cors());
 app.use(express.json());
+// app.use(express.json({limit:"4MB"}));
 app.use(express.urlencoded({extended:true}));
 
 // database connection
@@ -17,6 +20,7 @@ connectDB();
 app.get("/",(req,res)=>{
   res.send("Server is working.");
 })
+
 // test API for users
 app.use("/api/user",userRouter);
 
