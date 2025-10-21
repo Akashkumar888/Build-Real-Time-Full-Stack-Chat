@@ -1,31 +1,23 @@
-
-import 'dotenv/config'
-import express from 'express'
+import express from 'express';
+import cors from 'cors';
 import userRouter from './routes/user.route.js';
-import connectDB from './configs/db.config.js';
-import cors from 'cors'
-const app=express();
+import messageRouter from './routes/message.routes.js';
 
-// middlewares
+const app = express();
+
+// Middlewares
 app.use(cors());
 app.use(express.json());
-// app.use(express.json({limit:"4MB"}));
-app.use(express.urlencoded({extended:true}));
+app.use(express.urlencoded({ extended: true }));
 
-// database connection
-connectDB();
-
-
-// test API
-app.get("/",(req,res)=>{
-  res.send("Server is working.");
-})
-
-// test API for users
-app.use("/api/user",userRouter);
-
+// Routes
+app.get('/', (req, res) => res.send('Server is working.'));
+app.use('/api/user', userRouter);
+app.use('/api/messages', messageRouter);
 
 export default app;
+
+
 
 // 🧠 How They Work Together (for Chat + Video Calls)
 // Let’s say you’re building WhatsApp in MERN:

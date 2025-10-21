@@ -1,12 +1,24 @@
-import app from './app.js'
-import http from 'http'
+import 'dotenv/config';
+import http from 'http';
+import app from './app.js';
+import connectDB from './configs/db.config.js';
+import { initSocket } from './configs/socket.config.js';
 
-const server=http.createServer(app); // use http because socket.io support http 
-const PORT=process.env.PORT || 5000;
+// Connect to MongoDB
+connectDB();
 
-server.listen(PORT,()=>{
-  console.log(`Server is running on port:http://localhost:${PORT}`);
+// Create HTTP server for Express + Socket.IO
+const server = http.createServer(app);
+
+// Initialize Socket.IO
+export const { io, userSocketMap } = initSocket(server);
+
+// Start the server
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
 });
+
 
 
 // Use Case	                         Technology
