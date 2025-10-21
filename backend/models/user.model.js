@@ -20,10 +20,10 @@ const userSchema=new mongoose.Schema({
 // 🔹 Prevents rehashing when other fields (like email) are updated.
 
 // password setup 
-userSchema.pre("save",async function(next){
-  if(this.isModified("password"))return next();
-  const salt=await bcrypt.genSalt(10);
-  const hashedPassword=await bcrypt.hash(this.password,salt);
+userSchema.pre("save", async function(next) {
+  if (!this.isModified("password")) return next(); // only skip if password NOT modified
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt); // actually hash it
   next();
 });
 
@@ -34,9 +34,10 @@ userSchema.methods.generateAuthToken= function () {
 }
 
 // compare password 
-userSchema.methods.comparePassword=async function (enteredPassword) {
-  return await bcrypt.compare(this.password,enteredPassword);
-}
+userSchema.methods.comparePassword = async function (enteredPassword){
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
 
 const userModel=mongoose.models.User || mongoose.model("User",userSchema);
 

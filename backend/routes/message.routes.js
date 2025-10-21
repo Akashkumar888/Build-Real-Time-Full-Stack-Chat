@@ -2,7 +2,7 @@
 import express from 'express'
 import { authUser } from '../middlewares/authUser.middleware.js';
 import { getMessages, getUsersForSidebar, markMessageAsSeen, sendMessage } from '../controllers/message.controller.js';
-const messageRouter=express();
+const messageRouter=express.Router();
 
 messageRouter.get("/users",authUser,getUsersForSidebar);
 messageRouter.get("/:id",authUser,getMessages); // dynamic routes 

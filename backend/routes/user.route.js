@@ -1,15 +1,15 @@
 
 import express from 'express'
 import { getUserProfile, loginUser, registerUser, updateUserProfile } from '../controllers/user.controller.js';
-const userRouter=express();
+const userRouter = express.Router(); // ✅
 import {body} from 'express-validator'
 import { authUser } from '../middlewares/authUser.middleware.js';
 
 userRouter.post("/signup",[
-body("fullName").isEmpty().withMessage("Please write fullName"),
+body("fullName").notEmpty().withMessage("Please write fullName"),
 body("email").isEmail().withMessage("Invalid Email"),
 body("password").isLength({min:8}).withMessage("Password must be 8 characters long."),
-body("bio").isEmpty().withMessage("Please write short bio."),
+body("bio").notEmpty().withMessage("Please write short bio."),
 ],
   registerUser);
 
