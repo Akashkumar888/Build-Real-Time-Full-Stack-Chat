@@ -1,5 +1,5 @@
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import AppContext from "./AppContext";
 import { toast } from "react-toastify";
 import api from "../api/axios";
@@ -20,8 +20,8 @@ const getUsers=async()=>{
   try {
     const {data}=await api.get(`/api/messages/users`);
     if(data.success){
-      setUsers(data.users);
-      setUnseenMessages(data.unseenMessages);
+      setUsers(data.filteredUsers); // ✅ corrected key
+      setUnseenMessages(data.unseenMessages || {}); // ✅ prevent null
     }
     else{
       toast.error(data.message);
@@ -37,7 +37,7 @@ const getMessages=async(userId)=>{
   try {
     const {data}=await api.get(`/api/messages/${userId}`);
     if(data.success){
-      setMessages(data.message);
+      setMessages(data.messages); // ✅ Corrected key
     }
   } catch (error) {
     console.log(error);
@@ -45,10 +45,62 @@ const getMessages=async(userId)=>{
   }
 }
 
+// function to send message to selected user
+const sendMessage=async(messageData)=>{
+  try {
+    const {data}=await api.post(`/api/messages/send/${selectedUser._id}`,messageData);
+    if(data.success){
+    setMessages((prevMessages)=>[...prevMessages,data.newMessage])
+    }
+    else{
+      toast.error(data.message);
+    }
+  } catch (error) {
+    console.log(error);
+    toast.error(error.message);
+  }
+}
 
+// function to subscribe to messages for selected user
+const subscribeToMessages=async()=>{
+  if(!socket)return;
+  
+  socket.on("newMessage",(newMessage)=>{
+    if(selectedUser && newMessage.senderId === selectedUser._id){
+      newMessage.seen=true;
+      setMessages((prevMessages)=>[...prevMessages,newMessage]);
+      api.put(`/api/messages/mark/${newMessage._id}`);
+    }
+    else{
+      setUnseenMessages((prevUnseenMessages)=>({
+        ...prevUnseenMessages, [newMessage.senderId] : prevUnseenMessages[newMessage.senderId] ? prevUnseenMessages[newMessage.senderId] + 1  : 1
+      }))
+    }
+  })
+}
+
+
+// function to unsubscribe from messages
+const unsubscribeFromMessages=async()=>{
+  if(socket)socket.off("newMessage");
+}
+
+useEffect(()=>{
+  subscribeToMessages();
+  return ()=> unsubscribeFromMessages();
+},[socket,selectedUser]);
 
   const value={
-
+   messages,
+   getMessages,
+   users,
+   selectedUser,
+   getUsers,
+   setMessages,
+   sendMessage,
+   setSelectedUser,
+   unseenMessages,
+   setUnseenMessages
   };
 
   return (

@@ -7,8 +7,8 @@ const app = express();
 
 // Middlewares
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "10mb" })); // increase as needed
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 // Routes
 app.get('/', (req, res) => res.send('Server is working.'));

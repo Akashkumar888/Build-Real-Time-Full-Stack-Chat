@@ -65,10 +65,12 @@ export const getMessages = async (req, res) => {
         { senderId: myId, receiverId: selectedUserId }, // messages sent by me to the selected user
         { senderId: selectedUserId, receiverId: myId }  // messages sent by selected user to me
       ]
-    }).sort({ createdAt: -1 }) // latest messages first
+    }).sort({ createdAt: 1 }) // latest messages first
     .skip(skip)
     .limit(limit);
     // Now `messages` contains all messages exchanged between these two users
+//     .sort({ createdAt: 1 }) // oldest → newest
+// Now messages will come in chronological order (top to bottom).
 
     // Mark all messages sent by the selected user to the logged-in user as 'seen'
     await messageModel.updateMany(
