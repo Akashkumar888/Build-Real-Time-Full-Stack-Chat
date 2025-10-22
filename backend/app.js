@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import serverless from 'serverless-http';
 import userRouter from './routes/user.route.js';
 import messageRouter from './routes/message.routes.js';
 
@@ -15,7 +16,7 @@ app.get('/', (req, res) => res.send('Server is working.'));
 app.use('/api/user', userRouter);
 app.use('/api/messages', messageRouter);
 
-export default app;
+export default serverless(app); // ✅ Vercel expects a default function export
 
 
 
