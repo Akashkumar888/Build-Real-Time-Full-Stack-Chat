@@ -1,45 +1,44 @@
-
 import { Server } from 'socket.io';
-import app from '../app.js';
-import http from 'http';
-const server = http.createServer(app);
 
 export const initSocket = (server) => {
   // Create a new Socket.IO server instance
+  // CORS is configured to allow all origins (for dev; restrict in production)
   const io = new Server(server, {
-    cors: { origin: '*' }, // Allow connections from any origin (for development / testing)
+    cors: { origin: '*' },
   });
 
-  const userSocketMap = {}; 
-  // This object stores mapping of userId to their socketId
-  // Example: { 'userId1': 'socketId1', 'userId2': 'socketId2' }
+  // Object to store online users
+  // Key: userId, Value: socket.id
+  const userSocketMap = {};
 
   // Listen for incoming socket connections
   io.on('connection', (socket) => {
-    // Extract userId sent by client in handshake query
+    // userId should be sent from client when connecting via query params
     const userId = socket.handshake.query.userId;
+
+    // If no userId provided, ignore this connection
+    if (!userId) return;
+
     console.log('User Connected:', userId);
 
-    // Store socketId for the connected user
-    if (userId) userSocketMap[userId] = socket.id;
+    // Store socket.id for this user
+    userSocketMap[userId] = socket.id;
 
-
-// getOnlineUsers is the name of the Socket.IO event you are emitting.
-// It sends the current list of online users to all connected clients.
-
-    // Emit current list of online users to all connected clients
+    // Broadcast the current list of online users to all clients
     io.emit('getOnlineUsers', Object.keys(userSocketMap));
 
-    // Listen for disconnection
+    // Listen for disconnect event
     socket.on('disconnect', () => {
       console.log('User Disconnected:', userId);
+
       // Remove user from online users map
       delete userSocketMap[userId];
-      // Update all clients with new online users list
+
+      // Broadcast updated online users list
       io.emit('getOnlineUsers', Object.keys(userSocketMap));
     });
   });
 
-  // Return both the io instance and the online user map
+  // Return io instance and user map for use in other modules
   return { io, userSocketMap };
 };
