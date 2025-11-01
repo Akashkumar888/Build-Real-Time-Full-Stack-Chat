@@ -46,10 +46,16 @@ export const loginUser=async(req,res)=>{
     }
     const token=user.generateAuthToken();
 
-    const safeUser=user.toObject();
-    delete safeUser.password;
+    const userData=user.toObject();
+    delete userData.password;
 
-    res.status(200).json({success:true,message:"Login successfully!",token,user:safeUser});
+    res.status(200).json({
+    success:true,
+    message:"User created successfully!",
+    token,
+    user:userData
+  });
+
   } catch (error) {
     console.log(error);
     res.status(500).json({success:false,message:error.message});
