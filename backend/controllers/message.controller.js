@@ -1,7 +1,8 @@
 import cloudinary from "../configs/cloudinary.config.js";
 import messageModel from "../models/message.model.js";
 import userModel from "../models/user.model.js";
-import { io,userSocketMap } from "../server.js";
+import { io, userSocketMap } from "../app.js";
+
 
 
 // Get all users for sidebar except the logged-in user
